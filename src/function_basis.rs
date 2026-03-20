@@ -1,15 +1,35 @@
+use std::ops::{BitAnd, BitOr, BitXor, Not};
+
 pub trait FunctionSet<T>: Copy {
     const CARDINALITY: usize;
     fn apply(self, lhs: T, rhs: T) -> T;
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum BooleanOp {
     And,
     Or,
     Xor,
     Nand,
 }
+
+#[derive(Clone, Copy, Debug)]
+pub enum NandCircuit {
+    Nand,
+}
+
+impl<B> FunctionSet<B> for NandCircuit
+where
+    B: BitAnd<Output = B> + Not<Output = B>
+{
+    const CARDINALITY: usize = 1;
+    fn apply(self, lhs: B, rhs: B) -> B {
+        match self {
+            Self::Nand => !(lhs & rhs),
+        }
+    }
+}
+
 
 impl FunctionSet<bool> for BooleanOp {
     const CARDINALITY: usize = 4;
@@ -22,6 +42,7 @@ impl FunctionSet<bool> for BooleanOp {
         }
     }
 }
+
 
 impl FunctionSet<u64> for BooleanOp {
     const CARDINALITY: usize = 4;
