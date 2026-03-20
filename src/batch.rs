@@ -5,7 +5,6 @@ pub trait BatchEval: Sized {
     fn measure_fitness(output: &[Self], target: &[Self]) -> usize;
 }
 
-
 impl BatchEval for usize {
     fn generate_inputs(arity : usize) -> Vec<usize> {
 	let mut inputs = Vec::new();
@@ -64,7 +63,7 @@ mod tests {
 
     proptest! {
 	#[test]
-	// Note: for u64 we can only handle up to arity 6 which corresponds to
+	// Note: for usize we can only handle up to arity 6 which corresponds to
 	// a bitvector of size 2^6 = 64
 	fn generate_inputs_usize(arity in 1usize..6) {
 	let inputs = usize::generate_inputs(arity);
@@ -83,7 +82,18 @@ mod tests {
 	    // sum up all the bits (same as bitwise or)
             prop_assert_eq!(row, i);
 	}
+	}
 
+	#[test]
+	fn generate_inputs_bitvector(arity in 1usize..12) {
+	let inputs = BitVec::generate_inputs(arity);
+	for i in 0..(1 << arity) {
+
+	    let row: usize = inputs.iter().enumerate()
+		.map(|(k, col)| (col[i] as usize) << k)
+		.sum();
+            prop_assert_eq!(row, i);
+	}
 	}
     }
 
